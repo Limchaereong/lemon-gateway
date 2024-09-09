@@ -7,6 +7,5 @@ spring:
     active: dev
   main:
     allow-circular-references: true
-#jwt:
-#  secret: ${JWT_SECRET}
-# jwt 발급 후 환경변수 설정
+jwt:
+  secret: ${JWT_SECRET}
