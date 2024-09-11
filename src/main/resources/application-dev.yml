@@ -1,10 +1,10 @@
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://127.0.0.1:8761/eureka/
+      defaultZone: http://${EUREKA_SERVER_HOSTNAME}:${EUREKA_SERVER_PORT}/eureka/
   instance:
     preferIpAddress: true
-    hostname: 127.0.0.1
+    hostname: ${EUREKA_SERVER_HOSTNAME}
 logging:
   level:
     org.springframework.cloud.gateway: DEBUG

@@ -7,5 +7,20 @@ spring:
     active: dev
   main:
     allow-circular-references: true
+
 jwt:
   secret: ${JWT_SECRET}
+
+eureka:
+  client:
+    enabled: true
+    fetchRegistry: true
+    registerWithEureka: true
+  instance:
+    preferIpAddress: true
+    hostname: ${EUREKA_SERVER_HOSTNAME}
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty.http.client: INFO
