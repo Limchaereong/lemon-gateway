@@ -35,4 +35,4 @@ jobs:
         run: |
           echo "EUREKA_SERVER_HOSTNAME=$EUREKA_SERVER_HOSTNAME"
           echo "EUREKA_SERVER_PORT=$EUREKA_SERVER_PORT"
-          echo "JWT_SECRET=JWT_SECRET"
+          echo "JWT_SECRET=$JWT_SECRET"
