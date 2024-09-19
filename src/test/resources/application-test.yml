@@ -16,6 +16,9 @@ eureka:
   client:
     enabled: false
 
+jwt:
+  secret: verysecretkeythatmustbe32characterslong!
+
 logging:
   level:
     org.springframework: WARN
