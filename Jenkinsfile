@@ -42,10 +42,28 @@ pipeline {
         stage("Build") {
             steps {
                 script {
-                    // Docker 이미지 빌드
-                    sh "docker build -t ${DOCKER_IMAGE} ."
+                    // Credentials를 사용하여 환경 변수 설정
+                    withCredentials([
+                        string(credentialsId: 'JWT_SECRET', variable: 'JWT_SECRET'),
+                        string(credentialsId: 'EUREKA_SERVER_HOSTNAME', variable: 'EUREKA_SERVER_HOSTNAME'),
+                        string(credentialsId: 'EUREKA_SERVER_PORT', variable: 'EUREKA_SERVER_PORT')
+                    ]) {
+                        // Docker 이미지 빌드
+                        sh """
+                        docker build --build-arg JWT_SECRET=${JWT_SECRET} \
+                                     --build-arg EUREKA_SERVER_HOSTNAME=${EUREKA_SERVER_HOSTNAME} \
+                                     --build-arg EUREKA_SERVER_PORT=${EUREKA_SERVER_PORT} \
+                                     -t ${DOCKER_IMAGE} .
+                        """
+                    }
                 }
             }
+//             steps {
+//                 script {
+//                     // Docker 이미지 빌드
+//                     sh "docker build -t ${DOCKER_IMAGE} ."
+//                 }
+//             }
         }
         stage('Up') {
             steps {
