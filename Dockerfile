@@ -14,7 +14,7 @@ RUN ./gradlew clean bootJar --no-build-cache
 
 
 # 실행 스테이지
-FROM azul/zulu-openjdk:21
-WORKDIR /gateway
+FROM azul/zulu-openjdk:21-jre
 COPY --from=build /gateway/build/libs/*.jar app.jar
 ENTRYPOINT ["java", "-Duser.timezone=Asia/Seoul", "-jar", "app.jar"]
+VOLUME /tmp
