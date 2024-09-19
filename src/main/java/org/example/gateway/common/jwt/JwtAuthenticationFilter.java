@@ -32,6 +32,11 @@ public class JwtAuthenticationFilter implements WebFilter {
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
 
+        String path = request.getPath().toString();
+        if (path.startsWith("/user/login") || path.startsWith("/auth/refresh")) {
+            return chain.filter(exchange);
+        }
+
         String authorizationHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if (Objects.isNull(authorizationHeader) || !authorizationHeader.startsWith("Bearer ")) {
             log.error("Authorization 헤더가 없거나 유효하지 않습니다.");
