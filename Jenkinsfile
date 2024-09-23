@@ -48,19 +48,13 @@ pipeline {
                         string(credentialsId: 'EUREKA_SERVER_HOSTNAME', variable: 'EUREKA_SERVER_HOSTNAME'),
                         string(credentialsId: 'EUREKA_SERVER_PORT', variable: 'EUREKA_SERVER_PORT')
                     ]) {
-                        withEnv([
-                            "JWT_SECRET=${JWT_SECRET}",
-                            "EUREKA_SERVER_HOSTNAME=${EUREKA_SERVER_HOSTNAME}",
-                            "EUREKA_SERVER_PORT=${EUREKA_SERVER_PORT}"
-                        ]) {
-                            // Docker 이미지 빌드
-                            sh """
-                            docker build --build-arg JWT_SECRET=${JWT_SECRET} \
-                                         --build-arg EUREKA_SERVER_HOSTNAME=${EUREKA_SERVER_HOSTNAME} \
-                                         --build-arg EUREKA_SERVER_PORT=${EUREKA_SERVER_PORT} \
-                                         -t ${DOCKER_IMAGE} .
-                            """
-                        }
+                        // 시크릿 변수를 직접 사용하는 대신 환경 변수로 전달
+                        sh '''
+                        docker build --build-arg JWT_SECRET=$JWT_SECRET \
+                                     --build-arg EUREKA_SERVER_HOSTNAME=$EUREKA_SERVER_HOSTNAME \
+                                     --build-arg EUREKA_SERVER_PORT=$EUREKA_SERVER_PORT \
+                                     -t gateway .
+                        '''
                     }
                 }
             }
