@@ -68,7 +68,7 @@ pipeline {
                 script {
                     // 컨테이너 실행 (포트 매핑 포함)
                     try {
-                        sh "docker run -d --name ${DOCKER_CONTAINER} -p 8085:8085 ${DOCKER_IMAGE}"
+                        sh "docker run -d --name ${DOCKER_CONTAINER} -p 8085:8085 -e JWT_SECRET=$JWT_SECRET -e EUREKA_SERVER_HOSTNAME=$EUREKA_SERVER_HOSTNAME -e EUREKA_SERVER_PORT=$EUREKA_SERVER_PORT ${DOCKER_IMAGE}"
                     } catch(Exception e) {
                         sh "docker restart ${DOCKER_CONTAINER} || true"
                     }
