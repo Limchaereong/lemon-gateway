@@ -24,7 +24,6 @@ class JwtUtilTest {
     void setUp() {
         jwtUtil = new JwtUtil(secretKey);
 
-        // 유효한 토큰 생성
         validToken = Jwts.builder()
                 .claim("userId", "testUserId")
                 .claim("userRole", "USER")

@@ -53,7 +53,6 @@ class JwtAuthenticationFilterTest {
         MockitoAnnotations.openMocks(this);
         when(exchange.getRequest()).thenReturn(request);
 
-        // Mock request path to avoid NullPointerException
         RequestPath mockPath = mock(RequestPath.class);
         when(request.getPath()).thenReturn(mockPath);
         when(mockPath.toString()).thenReturn("/test/path");
@@ -63,7 +62,6 @@ class JwtAuthenticationFilterTest {
     void testFilter_ValidToken() {
         String validToken = "Bearer validToken";
 
-        // Mocking for request mutation
         ServerHttpRequest.Builder requestBuilder = mock(ServerHttpRequest.Builder.class);
         when(request.mutate()).thenReturn(requestBuilder);
 
@@ -73,21 +71,17 @@ class JwtAuthenticationFilterTest {
         when(exchangeBuilder.request(any(ServerHttpRequest.class))).thenReturn(exchangeBuilder);
         when(exchangeBuilder.build()).thenReturn(exchange);
 
-        // Set headers with valid token
         when(request.getHeaders()).thenReturn(new HttpHeaders() {{
             add(HttpHeaders.AUTHORIZATION, validToken);
         }});
 
-        // Mock JwtUtil behavior
         when(jwtUtil.isTokenValid("validToken")).thenReturn(true);
         when(jwtUtil.extractUserId("validToken")).thenReturn("testUserId");
         when(jwtUtil.extractUserRole("validToken")).thenReturn("USER");
 
-        // Mock request modification
         when(requestBuilder.header(anyString(), anyString())).thenReturn(requestBuilder);
         when(requestBuilder.build()).thenReturn(request);
 
-        // Mock web filter chain behavior
         when(webFilterChain.filter(any(ServerWebExchange.class))).thenReturn(Mono.empty());
 
         jwtAuthenticationFilter.filter(exchange, webFilterChain).block();
@@ -97,7 +91,6 @@ class JwtAuthenticationFilterTest {
 
     @Test
     void testFilter_MissingAuthorizationHeader() {
-        // Empty headers to simulate missing Authorization header
         when(request.getHeaders()).thenReturn(new HttpHeaders());
 
         assertThrows(UnAuthorizedException.class, () -> {
@@ -109,7 +102,6 @@ class JwtAuthenticationFilterTest {
     void testFilter_InvalidTokenAndValidRefreshToken() {
         String invalidToken = "Bearer invalidToken";
 
-        // Mocking request and exchange mutation
         ServerHttpRequest.Builder requestBuilder = mock(ServerHttpRequest.Builder.class);
         when(request.mutate()).thenReturn(requestBuilder);
 
@@ -119,28 +111,22 @@ class JwtAuthenticationFilterTest {
         when(exchangeBuilder.request(any(ServerHttpRequest.class))).thenReturn(exchangeBuilder);
         when(exchangeBuilder.build()).thenReturn(exchange);
 
-        // Set headers with invalid token
         when(request.getHeaders()).thenReturn(new HttpHeaders() {{
             add(HttpHeaders.AUTHORIZATION, invalidToken);
         }});
 
-        // Simulate invalid token
         when(jwtUtil.isTokenValid("invalidToken")).thenReturn(false);
 
-        // Mock refresh token in cookies
         MultiValueMap<String, HttpCookie> cookies = new LinkedMultiValueMap<>();
         cookies.add("refresh_token", new HttpCookie("refresh_token", "mockRefreshToken"));
         when(request.getCookies()).thenReturn(cookies);
 
-        // Mock AuthAdapter to return new tokens
         TokenResponseDto mockResponse = new TokenResponseDto("newAccessToken", "newRefreshToken");
         when(authAdapter.refreshAccessToken(any(RefreshTokenRequestDto.class))).thenReturn(mockResponse);
 
-        // Mock request modification
         when(requestBuilder.header(anyString(), anyString())).thenReturn(requestBuilder);
         when(requestBuilder.build()).thenReturn(request);
 
-        // Mock web filter chain behavior
         when(webFilterChain.filter(any(ServerWebExchange.class))).thenReturn(Mono.empty());
 
         jwtAuthenticationFilter.filter(exchange, webFilterChain).block();
@@ -156,7 +142,6 @@ class JwtAuthenticationFilterTest {
             add(HttpHeaders.AUTHORIZATION, invalidToken);
         }});
 
-        // Simulate invalid token and missing refresh token
         when(jwtUtil.isTokenValid("invalidToken")).thenReturn(false);
         when(request.getCookies()).thenReturn(new LinkedMultiValueMap<>());
 
