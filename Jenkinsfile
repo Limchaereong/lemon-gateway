@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        REPO = "https://github.com/Barsoup-Tensor/gateway.git"  // Github repository url
+        REPO = "https://github.com/Barsoup-Tensor/gateway.git"  // Github repository URL
         DOCKER_IMAGE = "gateway"  // 이미지 이름
         DOCKER_CONTAINER = "gateway"  // 컨테이너 이름
     }
@@ -49,11 +49,11 @@ pipeline {
                         string(credentialsId: 'EUREKA_SERVER_PORT', variable: 'EUREKA_SERVER_PORT')
                     ]) {
                         // 시크릿 변수를 직접 사용하는 대신 환경 변수로 전달
-                        echo "JWT_SECRET: ${JWT_SECRET}"  // JWT_SECRET 확인
-                        echo "EUREKA_SERVER_HOSTNAME: ${EUREKA_SERVER_HOSTNAME}"  // EUREKA_SERVER_HOSTNAME 확인
-                        echo "EUREKA_SERVER_PORT: ${EUREKA_SERVER_PORT}"  // EUREKA_SERVER_PORT 확인
-
                         sh '''
+                        echo "Building Docker image with the following environment variables:"
+                        echo "JWT_SECRET length: ${#JWT_SECRET}"  # 비밀키의 길이만 출력하여 보안 유지
+                        echo "EUREKA_SERVER_HOSTNAME: $EUREKA_SERVER_HOSTNAME"
+                        echo "EUREKA_SERVER_PORT: $EUREKA_SERVER_PORT"
                         docker build --build-arg JWT_SECRET=$JWT_SECRET \
                                      --build-arg EUREKA_SERVER_HOSTNAME=$EUREKA_SERVER_HOSTNAME \
                                      --build-arg EUREKA_SERVER_PORT=$EUREKA_SERVER_PORT \
