@@ -1,5 +1,3 @@
-# Dockerfile
-
 # 빌드 스테이지
 FROM gradle:8.5.0-jdk21-alpine AS build
 USER root
@@ -20,15 +18,21 @@ COPY src src
 RUN chmod +x ./gradlew
 RUN ./gradlew clean bootJar --no-build-cache
 
-
 # 실행 스테이지
 FROM azul/zulu-openjdk:21-jre
 
-# 실행 시 필요한 환경 변수 설정
-ENV JWT_SECRET=$JWT_SECRET
-ENV EUREKA_SERVER_HOSTNAME=$EUREKA_SERVER_HOSTNAME
-ENV EUREKA_SERVER_PORT=$EUREKA_SERVER_PORT
+# 빌드 시 전달된 ARG를 ENV로 설정 (실행 단계에서도 사용 가능하게 하기 위해)
+ENV JWT_SECRET=${JWT_SECRET}
+ENV EUREKA_SERVER_HOSTNAME=${EUREKA_SERVER_HOSTNAME}
+ENV EUREKA_SERVER_PORT=${EUREKA_SERVER_PORT}
+
+# 필요한 경우 환경 변수 값을 확인하기 위한 디버그 용도
+RUN echo "JWT_SECRET: ${JWT_SECRET}"
+RUN echo "EUREKA_SERVER_HOSTNAME: ${EUREKA_SERVER_HOSTNAME}"
+RUN echo "EUREKA_SERVER_PORT: ${EUREKA_SERVER_PORT}"
 
 COPY --from=build /gateway/build/libs/*.jar app.jar
+
+# 실행 명령
 ENTRYPOINT ["java", "-Duser.timezone=Asia/Seoul", "-jar", "app.jar"]
 VOLUME /tmp

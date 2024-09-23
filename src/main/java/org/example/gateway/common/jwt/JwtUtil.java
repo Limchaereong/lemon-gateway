@@ -21,6 +21,7 @@ public class JwtUtil {
 
     public JwtUtil(@Value("${jwt.secret}") String secretKey) {
         this.secretKey = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+        System.out.println("JWT_SECRET length (bytes): " + secretKey.getBytes(StandardCharsets.UTF_8).length);
     }
 
     public Claims extractAllClaims(String token) {
