@@ -1,9 +1,13 @@
 # 빌드 스테이지
 FROM gradle:8.5.0-jdk21-alpine AS build
 USER root
-WORKDIR /gateway
+WORKDIR /auth
 
-# 소스 파일 복사
+# 빌드 시 전달받을 변수 선언
+ARG JWT_SECRET
+ARG EUREKA_SERVER_HOSTNAME
+ARG EUREKA_SERVER_PORT
+
 COPY gradlew .
 COPY gradle gradle
 COPY build.gradle .
@@ -14,14 +18,15 @@ COPY src src
 RUN chmod +x ./gradlew
 RUN ./gradlew clean bootJar --no-build-cache
 
+
 # 실행 스테이지
 FROM azul/zulu-openjdk:21-jre
 
-# 애플리케이션 jar 파일 복사
-COPY --from=build /gateway/build/libs/*.jar app.jar
+# 실행 시 필요한 환경 변수 설정
+ENV JWT_SECRET=$JWT_SECRET
+ENV EUREKA_SERVER_HOSTNAME=$EUREKA_SERVER_HOSTNAME
+ENV EUREKA_SERVER_PORT=$EUREKA_SERVER_PORT
 
-# 스프링 부트 애플리케이션 실행
+COPY --from=build /auth/build/libs/*.jar app.jar
 ENTRYPOINT ["java", "-Duser.timezone=Asia/Seoul", "-jar", "app.jar"]
-
-# VOLUME 설정
 VOLUME /tmp
