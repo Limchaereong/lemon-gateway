@@ -52,6 +52,8 @@ pipeline {
                         echo "JWT_SECRET length: ${#JWT_SECRET}"  # 비밀키의 길이만 출력하여 보안 유지
                         echo "EUREKA_SERVER_HOSTNAME: $EUREKA_SERVER_HOSTNAME"
                         echo "EUREKA_SERVER_PORT: $EUREKA_SERVER_PORT"
+
+                        # 환경 변수들을 docker build에서 전달
                         docker build --build-arg JWT_SECRET=$JWT_SECRET \
                                      --build-arg EUREKA_SERVER_HOSTNAME=$EUREKA_SERVER_HOSTNAME \
                                      --build-arg EUREKA_SERVER_PORT=$EUREKA_SERVER_PORT \
@@ -64,21 +66,14 @@ pipeline {
         stage('Up') {
             steps {
                 script {
-                    // 컨테이너 실행 (포트 매핑 포함)
-                    try {
-                        sh """
-                        docker run -d --name ${DOCKER_CONTAINER} -p 8085:8085 \
-                        -e JWT_SECRET=${JWT_SECRET} \
-                        -e EUREKA_SERVER_HOSTNAME=${EUREKA_SERVER_HOSTNAME} \
-                        -e EUREKA_SERVER_PORT=${EUREKA_SERVER_PORT} \
-                        ${DOCKER_IMAGE}
-                        """
-                    } catch(Exception e) {
-                        // 오류 발생 시 로그 출력
-                        echo "Failed to run the container: ${e.getMessage()}"
-                        // 컨테이너가 이미 존재하는 경우 재시작 시도
-                        sh "docker restart ${DOCKER_CONTAINER} || true"
-                    }
+                    // 컨테이너 실행 (포트 매핑 포함) 및 환경 변수 전달
+                    sh '''
+                    docker run -d --name ${DOCKER_CONTAINER} -p 8085:8085 \
+                    -e JWT_SECRET=$JWT_SECRET \
+                    -e EUREKA_SERVER_HOSTNAME=$EUREKA_SERVER_HOSTNAME \
+                    -e EUREKA_SERVER_PORT=$EUREKA_SERVER_PORT \
+                    ${DOCKER_IMAGE}
+                    '''
                 }
             }
         }
