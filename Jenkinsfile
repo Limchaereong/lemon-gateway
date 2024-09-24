@@ -24,7 +24,7 @@ pipeline {
         stage('Stop and Remove Container') {
             steps {
                 script {
-                    // 컨테이너 중지 및 제거 (이미 실행 중인 경우)
+                    // 기존 컨테이너 중지 및 제거
                     sh "docker stop ${DOCKER_CONTAINER} || true"
                     sh "docker rm ${DOCKER_CONTAINER} || true"
                 }
@@ -33,7 +33,7 @@ pipeline {
         stage('Remove Old Images') {
             steps {
                 script {
-                    // 오래된 이미지를 제거
+                    // 오래된 Docker 이미지를 제거
                     sh "docker images ${DOCKER_IMAGE} -q | xargs -r docker rmi || true"
                     sh "docker images -f 'dangling=true' -q | xargs -r docker rmi || true"
                 }
@@ -49,15 +49,12 @@ pipeline {
                     ]) {
                         sh '''
                         echo "Building Docker image with the following environment variables:"
-                        echo "JWT_SECRET length: ${#JWT_SECRET}"  # 비밀키의 길이만 출력하여 보안 유지
+                        echo "JWT_SECRET length: ${#JWT_SECRET}"
                         echo "EUREKA_SERVER_HOSTNAME: $EUREKA_SERVER_HOSTNAME"
                         echo "EUREKA_SERVER_PORT: $EUREKA_SERVER_PORT"
 
-                        # 환경 변수들을 docker build에서 전달
-                        docker build --build-arg JWT_SECRET=$JWT_SECRET \
-                                     --build-arg EUREKA_SERVER_HOSTNAME=$EUREKA_SERVER_HOSTNAME \
-                                     --build-arg EUREKA_SERVER_PORT=$EUREKA_SERVER_PORT \
-                                     -t ${DOCKER_IMAGE} .
+                        # Docker 이미지를 빌드
+                        docker build -t ${DOCKER_IMAGE} .
                         '''
                     }
                 }
@@ -70,12 +67,13 @@ pipeline {
                     echo "JWT_SECRET: ${JWT_SECRET}"
                     echo "EUREKA_SERVER_HOSTNAME: ${EUREKA_SERVER_HOSTNAME}"
                     echo "EUREKA_SERVER_PORT: ${EUREKA_SERVER_PORT}"
-                    // 컨테이너 실행 (포트 매핑 포함) 및 환경 변수 전달
+
+                    // 컨테이너 실행 시 환경 변수 전달
                     sh '''
                     docker run -d --name ${DOCKER_CONTAINER} -p 8085:8085 \
-                    -e JWT_SECRET=$JWT_SECRET \
-                    -e EUREKA_SERVER_HOSTNAME=$EUREKA_SERVER_HOSTNAME \
-                    -e EUREKA_SERVER_PORT=$EUREKA_SERVER_PORT \
+                    -e JWT_SECRET=${JWT_SECRET} \
+                    -e EUREKA_SERVER_HOSTNAME=${EUREKA_SERVER_HOSTNAME} \
+                    -e EUREKA_SERVER_PORT=${EUREKA_SERVER_PORT} \
                     ${DOCKER_IMAGE}
                     '''
                 }
