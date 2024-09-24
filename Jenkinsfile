@@ -66,6 +66,10 @@ pipeline {
         stage('Up') {
             steps {
                 script {
+                    // 환경 변수가 제대로 설정되었는지 출력
+                    echo "JWT_SECRET: ${JWT_SECRET}"
+                    echo "EUREKA_SERVER_HOSTNAME: ${EUREKA_SERVER_HOSTNAME}"
+                    echo "EUREKA_SERVER_PORT: ${EUREKA_SERVER_PORT}"
                     // 컨테이너 실행 (포트 매핑 포함) 및 환경 변수 전달
                     sh '''
                     docker run -d --name ${DOCKER_CONTAINER} -p 8085:8085 \
