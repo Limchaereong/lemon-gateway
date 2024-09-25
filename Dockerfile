@@ -2,14 +2,13 @@
 FROM gradle:8.5.0-jdk21-alpine AS build
 USER root
 WORKDIR /gateway
-=
+
 
 # 빌드 시 전달받을 변수 선언
 ARG JWT_SECRET
 ARG EUREKA_SERVER_HOSTNAME
 ARG EUREKA_SERVER_PORT
 
-RUN echo "Building with JWT_SECRET=${JWT_SECRET}, EUREKA_SERVER_HOSTNAME=${EUREKA_SERVER_HOSTNAME}, EUREKA_SERVER_PORT=${EUREKA_SERVER_PORT}"
 
 COPY gradlew .
 COPY gradle gradle
@@ -19,6 +18,7 @@ COPY src src
 
 # 빌드 시에 환경 변수를 사용하는 경우 필요에 따라 아래와 같이 사용
 RUN chmod +x ./gradlew
+RUN echo "Building with JWT_SECRET=${JWT_SECRET}, EUREKA_SERVER_HOSTNAME=${EUREKA_SERVER_HOSTNAME}, EUREKA_SERVER_PORT=${EUREKA_SERVER_PORT}"
 RUN ./gradlew clean bootJar --no-build-cache
 
 
@@ -26,10 +26,10 @@ RUN ./gradlew clean bootJar --no-build-cache
 FROM azul/zulu-openjdk:21-jre
 
 # 실행 시 필요한 환경 변수 설정
-ENV JWT_SECRET=${JWT_SECRET}
-ENV EUREKA_SERVER_HOSTNAME=${EUREKA_SERVER_HOSTNAME}
-ENV EUREKA_SERVER_PORT=${EUREKA_SERVER_PORT}
+ENV JWT_SECRET $JWT_SECRET
+ENV EUREKA_SERVER_HOSTNAME $EUREKA_SERVER_HOSTNAME
+ENV EUREKA_SERVER_PORT $EUREKA_SERVER_PORT
 
 COPY --from=build /gateway/build/libs/*.jar app.jar
-ENTRYPOINT ["java", "-Duser.timezone=Asia/Seoul", "-Djwt.secret=$JWT_SECRET", "-Deureka.hostname=$EUREKA_SERVER_HOSTNAME", "-Deureka.port=$EUREKA_SERVER_PORT", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Duser.timezone=Asia/Seoul", "-jar", "app.jar"]
 VOLUME /tmp
