@@ -44,9 +44,9 @@ pipeline {
                         string(credentialsId: 'EUREKA_SERVER_PORT', variable: 'EUREKA_SERVER_PORT')
                     ]) {
                         sh '''
-                        docker build --build-arg JWT_SECRET=$JWT_SECRET \
-                                     --build-arg EUREKA_SERVER_HOSTNAME=$EUREKA_SERVER_HOSTNAME \
-                                     --build-arg EUREKA_SERVER_PORT=$EUREKA_SERVER_PORT \
+                        docker build --build-arg JWT_SECRET=${JWT_SECRET} \
+                                     --build-arg EUREKA_SERVER_HOSTNAME=${EUREKA_SERVER_HOSTNAME} \
+                                     --build-arg EUREKA_SERVER_PORT=${EUREKA_SERVER_PORT} \
                                      -t ${DOCKER_IMAGE} .
                         '''
                     }
@@ -63,9 +63,9 @@ pipeline {
                     echo "EUREKA_SERVER_PORT: $EUREKA_SERVER_PORT"
 
                     docker run -d --name ${DOCKER_CONTAINER} -p 8085:8085 \
-                    -e JWT_SECRET=$JWT_SECRET \
-                    -e EUREKA_SERVER_HOSTNAME=$EUREKA_SERVER_HOSTNAME \
-                    -e EUREKA_SERVER_PORT=$EUREKA_SERVER_PORT \
+                    -e JWT_SECRET=${JWT_SECRET} \
+                    -e EUREKA_SERVER_HOSTNAME=${EUREKA_SERVER_HOSTNAME} \
+                    -e EUREKA_SERVER_PORT=${EUREKA_SERVER_PORT} \
                     ${DOCKER_IMAGE}
                     '''
                 }
