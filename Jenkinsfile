@@ -68,6 +68,7 @@ pipeline {
                         -e EUREKA_SERVER_PORT=${EUREKA_SERVER_PORT} \
                         ${DOCKER_IMAGE}
                     '''
+
                 }
             }
         }
