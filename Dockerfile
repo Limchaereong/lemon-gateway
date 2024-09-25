@@ -2,7 +2,7 @@
 FROM gradle:8.5.0-jdk21-alpine AS build
 USER root
 WORKDIR /gateway
-
+=
 
 # 빌드 시 전달받을 변수 선언
 ARG JWT_SECRET
@@ -31,5 +31,5 @@ ENV EUREKA_SERVER_HOSTNAME=${EUREKA_SERVER_HOSTNAME}
 ENV EUREKA_SERVER_PORT=${EUREKA_SERVER_PORT}
 
 COPY --from=build /gateway/build/libs/*.jar app.jar
-ENTRYPOINT ["java", "-Duser.timezone=Asia/Seoul", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Duser.timezone=Asia/Seoul", "-Djwt.secret=$JWT_SECRET", "-Deureka.hostname=$EUREKA_SERVER_HOSTNAME", "-Deureka.port=$EUREKA_SERVER_PORT", "-jar", "app.jar"]
 VOLUME /tmp
