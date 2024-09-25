@@ -8,14 +8,12 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Git에서 소스 코드 가져오기
                 checkout scm
             }
         }
         stage('Setup Environment') {
             steps {
                 script {
-                    // 현재 디렉토리 내의 파일을 나열하고 gradlew 파일에 실행 권한을 부여
                     sh "ls -al"
                     sh "chmod +x ./gradlew"
                 }
@@ -24,7 +22,6 @@ pipeline {
         stage('Stop and Remove Container') {
             steps {
                 script {
-                    // 기존 컨테이너 중지 및 제거
                     sh "docker stop ${DOCKER_CONTAINER} || true"
                     sh "docker rm ${DOCKER_CONTAINER} || true"
                 }
@@ -33,7 +30,6 @@ pipeline {
         stage('Remove Old Images') {
             steps {
                 script {
-                    // 오래된 Docker 이미지를 제거
                     sh "docker images ${DOCKER_IMAGE} -q | xargs -r docker rmi || true"
                     sh "docker images -f 'dangling=true' -q | xargs -r docker rmi || true"
                 }
@@ -60,13 +56,12 @@ pipeline {
         stage('Up') {
             steps {
                 script {
-                    // 환경 변수가 제대로 설정되었는지 출력
-                    echo "JWT_SECRET: ${JWT_SECRET}"
-                    echo "EUREKA_SERVER_HOSTNAME: ${EUREKA_SERVER_HOSTNAME}"
-                    echo "EUREKA_SERVER_PORT: ${EUREKA_SERVER_PORT}"
-
-                    // 컨테이너 실행
+                    // 환경 변수를 출력 및 컨테이너 실행
                     sh '''
+                    echo "JWT_SECRET: $JWT_SECRET"
+                    echo "EUREKA_SERVER_HOSTNAME: $EUREKA_SERVER_HOSTNAME"
+                    echo "EUREKA_SERVER_PORT: $EUREKA_SERVER_PORT"
+
                     docker run -d --name ${DOCKER_CONTAINER} -p 8085:8085 \
                     -e JWT_SECRET=$JWT_SECRET \
                     -e EUREKA_SERVER_HOSTNAME=$EUREKA_SERVER_HOSTNAME \
