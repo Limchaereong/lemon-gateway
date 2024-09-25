@@ -43,12 +43,17 @@ pipeline {
                         string(credentialsId: 'EUREKA_SERVER_HOSTNAME', variable: 'EUREKA_SERVER_HOSTNAME'),
                         string(credentialsId: 'EUREKA_SERVER_PORT', variable: 'EUREKA_SERVER_PORT')
                     ]) {
-                        sh '''
-                        docker build --build-arg JWT_SECRET=${JWT_SECRET} \
-                                     --build-arg EUREKA_SERVER_HOSTNAME=${EUREKA_SERVER_HOSTNAME} \
-                                     --build-arg EUREKA_SERVER_PORT=${EUREKA_SERVER_PORT} \
-                                     -t ${DOCKER_IMAGE} .
-                        '''
+                    sh '''
+                        echo "JWT_SECRET: $JWT_SECRET"
+                        echo "EUREKA_SERVER_HOSTNAME: $EUREKA_SERVER_HOSTNAME"
+                        echo "EUREKA_SERVER_PORT: $EUREKA_SERVER_PORT"
+                    '''
+                    sh '''
+                    docker build --build-arg JWT_SECRET=${JWT_SECRET} \
+                                 --build-arg EUREKA_SERVER_HOSTNAME=${EUREKA_SERVER_HOSTNAME} \
+                                 --build-arg EUREKA_SERVER_PORT=${EUREKA_SERVER_PORT} \
+                                 -t ${DOCKER_IMAGE} .
+                    '''
                     }
                 }
             }
@@ -58,13 +63,8 @@ pipeline {
                 script {
                     // 환경 변수를 출력 및 컨테이너 실행
                     sh '''
-                    echo "JWT_SECRET: $JWT_SECRET"
-                    echo "EUREKA_SERVER_HOSTNAME: $EUREKA_SERVER_HOSTNAME"
-                    echo "EUREKA_SERVER_PORT: $EUREKA_SERVER_PORT"
-
                     docker run -d --name ${DOCKER_CONTAINER} -p 8085:8085 ${DOCKER_IMAGE}
                     '''
-
                 }
             }
         }
