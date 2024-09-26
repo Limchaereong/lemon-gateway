@@ -42,42 +42,51 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    withCredentials([
-                        string(credentialsId: 'JWT_SECRET', variable: 'CRED_JWT_SECRET'),
-                        string(credentialsId: 'EUREKA_SERVER_HOSTNAME', variable: 'CRED_EUREKA_SERVER_HOSTNAME'),
-                        string(credentialsId: 'EUREKA_SERVER_PORT', variable: 'CRED_EUREKA_SERVER_PORT')
-                    ]) {
-
-                    JWT_SECRET = CRED_JWT_SECRET
-                    EUREKA_SERVER_HOSTNAME = CRED_EUREKA_SERVER_HOSTNAME
-                    EUREKA_SERVER_PORT = CRED_EUREKA_SERVER_PORT
-
-                    sh '''
-                        echo "JWT_SECRET: $JWT_SECRET"
-                        echo "EUREKA_SERVER_HOSTNAME: $EUREKA_SERVER_HOSTNAME"
-                        echo "EUREKA_SERVER_PORT: $EUREKA_SERVER_PORT"
-                    '''
-                    sh '''
-                    docker build --build-arg JWT_SECRET=${JWT_SECRET} \
-                                 --build-arg EUREKA_SERVER_HOSTNAME=${EUREKA_SERVER_HOSTNAME} \
-                                 --build-arg EUREKA_SERVER_PORT=${EUREKA_SERVER_PORT} \
-                                 -t ${DOCKER_IMAGE} .
-                    '''
-                    }
+//                     withCredentials([
+//                         string(credentialsId: 'JWT_SECRET', variable: 'CRED_JWT_SECRET'),
+//                         string(credentialsId: 'EUREKA_SERVER_HOSTNAME', variable: 'CRED_EUREKA_SERVER_HOSTNAME'),
+//                         string(credentialsId: 'EUREKA_SERVER_PORT', variable: 'CRED_EUREKA_SERVER_PORT')
+//                     ]) {
+//
+//                     JWT_SECRET = CRED_JWT_SECRET
+//                     EUREKA_SERVER_HOSTNAME = CRED_EUREKA_SERVER_HOSTNAME
+//                     EUREKA_SERVER_PORT = CRED_EUREKA_SERVER_PORT
+//
+//                     sh '''
+//                         echo "JWT_SECRET: $JWT_SECRET"
+//                         echo "EUREKA_SERVER_HOSTNAME: $EUREKA_SERVER_HOSTNAME"
+//                         echo "EUREKA_SERVER_PORT: $EUREKA_SERVER_PORT"
+//                     '''
+//                     sh '''
+//                     docker build --build-arg JWT_SECRET=${JWT_SECRET} \
+//                                  --build-arg EUREKA_SERVER_HOSTNAME=${EUREKA_SERVER_HOSTNAME} \
+//                                  --build-arg EUREKA_SERVER_PORT=${EUREKA_SERVER_PORT} \
+//                                  -t ${DOCKER_IMAGE} .
+//                     '''
+                       sh '''
+                        docker build -t ${DOCKER_IMAGE} .
+                       '''
+//                     }
                 }
             }
         }
         stage('Up') {
             steps {
                 script {
+                    withCredentials([
+                        string(credentialsId: 'JWT_SECRET', variable: 'CRED_JWT_SECRET'),
+                        string(credentialsId: 'EUREKA_SERVER_HOSTNAME', variable: 'CRED_EUREKA_SERVER_HOSTNAME'),
+                        string(credentialsId: 'EUREKA_SERVER_PORT', variable: 'CRED_EUREKA_SERVER_PORT')
+                    ]) {
+
                     sh '''
                     docker run -d --name ${DOCKER_CONTAINER} -p 8085:8085 \
-                        -e "JWT_SECRET=${JWT_SECRET}" \
-                        -e "EUREKA_SERVER_HOSTNAME=${EUREKA_SERVER_HOSTNAME}" \
-                        -e "EUREKA_SERVER_PORT=${EUREKA_SERVER_PORT}" \
+                        -e "JWT_SECRET=${CRED_JWT_SECRET}" \
+                        -e "EUREKA_SERVER_HOSTNAME=${CRED_EUREKA_SERVER_HOSTNAME}" \
+                        -e "EUREKA_SERVER_PORT=${CRED_EUREKA_SERVER_PORT}" \
                         ${DOCKER_IMAGE}
                     '''
-
+                    }
                 }
             }
         }
