@@ -49,11 +49,11 @@ pipeline {
                         echo "EUREKA_SERVER_PORT: $EUREKA_SERVER_PORT"
                     '''
                     sh '''
-                    export DOCKER_BUILDKIT=1
                     docker build --build-arg JWT_SECRET=${JWT_SECRET} \
                                  --build-arg EUREKA_SERVER_HOSTNAME=${EUREKA_SERVER_HOSTNAME} \
                                  --build-arg EUREKA_SERVER_PORT=${EUREKA_SERVER_PORT} \
-                                 -t ${DOCKER_IMAGE} .
+                                 -t ${DOCKER_IMAGE} \
+                                 .
                     '''
                     }
                 }
