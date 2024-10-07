@@ -40,10 +40,6 @@ public class JwtUtil {
 		return extractAllClaims(token).get("userId", String.class);
 	}
 
-	public String extractUserRole(String token) {
-		return extractAllClaims(token).get("userRole", String.class);
-	}
-
 	public boolean isTokenValid(String token) {
 		try {
 			Jwts.parser()

@@ -66,13 +66,11 @@ public class JwtAuthenticationFilter implements WebFilter {
 		}
 
 		String userId = jwtUtil.extractUserId(jwtToken);
-		String userRole = jwtUtil.extractUserRole(jwtToken);
 
-		log.info("Authenticated user with ID: {} and Role: {}", userId, userRole);
+		log.info("Authenticated user with ID: {} ", userId);
 
 		ServerHttpRequest modifiedRequest = exchange.getRequest().mutate()
 			.header("X-User-ID", userId)
-			.header("X-User-Role", userRole)
 			.build();
 
 		return chain.filter(exchange.mutate().request(modifiedRequest).build());

@@ -28,7 +28,6 @@ class JwtUtilTest {
 
 		validToken = Jwts.builder()
 			.claim("userId", "testUserId")
-			.claim("userRole", "USER")
 			.signWith(key)
 			.compact();
 	}
@@ -38,7 +37,6 @@ class JwtUtilTest {
 		Claims claims = jwtUtil.extractAllClaims(validToken);
 		assertNotNull(claims);
 		assertEquals("testUserId", claims.get("userId"));
-		assertEquals("USER", claims.get("userRole"));
 	}
 
 	@Test
@@ -53,12 +51,6 @@ class JwtUtilTest {
 	void testExtractUserId() {
 		String userId = jwtUtil.extractUserId(validToken);
 		assertEquals("testUserId", userId);
-	}
-
-	@Test
-	void testExtractUserRole() {
-		String userRole = jwtUtil.extractUserRole(validToken);
-		assertEquals("USER", userRole);
 	}
 
 	@Test

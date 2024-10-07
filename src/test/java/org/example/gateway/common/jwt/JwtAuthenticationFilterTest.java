@@ -78,7 +78,6 @@ class JwtAuthenticationFilterTest {
 
 		when(jwtUtil.isTokenValid("validToken")).thenReturn(true);
 		when(jwtUtil.extractUserId("validToken")).thenReturn("testUserId");
-		when(jwtUtil.extractUserRole("validToken")).thenReturn("USER");
 
 		when(requestBuilder.header(anyString(), anyString())).thenReturn(requestBuilder);
 		when(requestBuilder.build()).thenReturn(request);
