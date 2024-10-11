@@ -4,9 +4,6 @@ import java.util.Objects;
 
 import org.example.gateway.common.exception.UnauthorizedException;
 import org.example.gateway.common.exception.payload.ErrorCode;
-import org.example.gateway.infrastructure.adaptor.AuthAdapter;
-import org.example.gateway.presentation.dto.request.RefreshTokenRequestDto;
-import org.example.gateway.presentation.dto.response.TokenResponseDto;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
@@ -24,7 +21,6 @@ import reactor.core.publisher.Mono;
 public class JwtAuthenticationFilter implements WebFilter {
 
 	private final JwtUtil jwtUtil;
-	private final AuthAdapter authAdapter;
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
@@ -46,30 +42,12 @@ public class JwtAuthenticationFilter implements WebFilter {
 		String jwtToken = authorizationHeader.substring(7);
 
 		if (!jwtUtil.isTokenValid(jwtToken)) {
-			String refreshToken = request.getCookies().getFirst("refresh_token") != null
-				? request.getCookies().getFirst("refresh_token").getValue()
-				: null;
-
-			if (refreshToken == null) {
-				log.error("Refresh token이 없습니다.");
-				throw new UnauthorizedException(ErrorCode.INVALID_TOKEN);
-			}
-
-			RefreshTokenRequestDto refreshTokenRequestDto = new RefreshTokenRequestDto(refreshToken);
-			TokenResponseDto newTokens = authAdapter.refreshAccessToken(refreshTokenRequestDto);
-
-			log.info("새로운 액세스 토큰: {}", newTokens.accessToken());
-
-			ServerHttpRequest modifiedRequest = exchange.getRequest().mutate()
-				.header(HttpHeaders.AUTHORIZATION, "Bearer " + newTokens.accessToken())
-				.build();
-
-			return chain.filter(exchange.mutate().request(modifiedRequest).build());
+			log.error("유효하지 않은 토큰입니다.");
+			throw new UnauthorizedException(ErrorCode.INVALID_TOKEN);
 		}
 
 		String userId = jwtUtil.extractUserId(jwtToken);
-
-		log.info("Authenticated user with ID: {} ", userId);
+		log.info("Authenticated user with ID: {}", userId);
 
 		ServerHttpRequest modifiedRequest = exchange.getRequest().mutate()
 			.header("X-User-ID", userId)
