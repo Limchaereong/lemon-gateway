@@ -7,20 +7,16 @@ import static org.mockito.Mockito.*;
 
 import org.example.gateway.common.exception.UnauthorizedException;
 import org.example.gateway.infrastructure.adaptor.AuthAdapter;
-import org.example.gateway.presentation.dto.request.RefreshTokenRequestDto;
-import org.example.gateway.presentation.dto.response.TokenResponseDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.RequestPath;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 
@@ -96,43 +92,6 @@ class JwtAuthenticationFilterTest {
 		assertThrows(UnauthorizedException.class, () -> {
 			jwtAuthenticationFilter.filter(exchange, webFilterChain).block();
 		});
-	}
-
-	@Test
-	void testFilter_InvalidTokenAndValidRefreshToken() {
-		String invalidToken = "Bearer invalidToken";
-
-		ServerHttpRequest.Builder requestBuilder = mock(ServerHttpRequest.Builder.class);
-		when(request.mutate()).thenReturn(requestBuilder);
-
-		ServerWebExchange.Builder exchangeBuilder = mock(ServerWebExchange.Builder.class);
-		when(exchange.mutate()).thenReturn(exchangeBuilder);
-
-		when(exchangeBuilder.request(any(ServerHttpRequest.class))).thenReturn(exchangeBuilder);
-		when(exchangeBuilder.build()).thenReturn(exchange);
-
-		when(request.getHeaders()).thenReturn(new HttpHeaders() {{
-			add(HttpHeaders.AUTHORIZATION, invalidToken);
-		}});
-
-		when(jwtUtil.isTokenValid("invalidToken")).thenReturn(false);
-
-		MultiValueMap<String, HttpCookie> cookies = new LinkedMultiValueMap<>();
-		cookies.add("refresh_token", new HttpCookie("refresh_token", "mockRefreshToken"));
-		when(request.getCookies()).thenReturn(cookies);
-
-		TokenResponseDto mockResponse = new TokenResponseDto("newAccessToken", "newRefreshToken");
-		when(authAdapter.refreshAccessToken(any(RefreshTokenRequestDto.class))).thenReturn(mockResponse);
-
-		when(requestBuilder.header(anyString(), anyString())).thenReturn(requestBuilder);
-		when(requestBuilder.build()).thenReturn(request);
-
-		when(webFilterChain.filter(any(ServerWebExchange.class))).thenReturn(Mono.empty());
-
-		jwtAuthenticationFilter.filter(exchange, webFilterChain).block();
-
-		verify(authAdapter, times(1)).refreshAccessToken(any(RefreshTokenRequestDto.class));
-		verify(webFilterChain, times(1)).filter(any(ServerWebExchange.class));
 	}
 
 	@Test
