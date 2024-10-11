@@ -34,25 +34,37 @@ public class JwtAuthenticationFilter implements WebFilter {
 		}
 
 		String authorizationHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-		if (Objects.isNull(authorizationHeader) || !authorizationHeader.startsWith("Bearer ")) {
-			log.error("Authorization 헤더가 없거나 유효하지 않습니다.");
+		if (Objects.isNull(authorizationHeader)) {
+			log.error("Authorization 헤더가 없습니다.");
 			throw new UnauthorizedException(ErrorCode.UNAUTHORIZED_ACCESS);
 		}
 
-		String jwtToken = authorizationHeader.substring(7);
-
-		if (!jwtUtil.isTokenValid(jwtToken)) {
-			log.error("유효하지 않은 토큰입니다.");
-			throw new UnauthorizedException(ErrorCode.INVALID_TOKEN);
+		String token;
+		boolean isAccessToken = false;
+		if (authorizationHeader.startsWith("Bearer ")) {
+			token = authorizationHeader.substring(7);
+			isAccessToken = true;
+		} else {
+			token = authorizationHeader.trim();
 		}
 
-		String userId = jwtUtil.extractUserId(jwtToken);
-		log.info("Authenticated user with ID: {}", userId);
+		if (isAccessToken) {
+			if (!jwtUtil.isTokenValid(token)) {
+				log.error("유효하지 않은 액세스 토큰입니다.");
+				throw new UnauthorizedException(ErrorCode.INVALID_TOKEN);
+			}
 
-		ServerHttpRequest modifiedRequest = exchange.getRequest().mutate()
-			.header("X-User-ID", userId)
-			.build();
+			String userId = jwtUtil.extractUserId(token);
+			log.info("Authenticated user with ID: {}", userId);
 
-		return chain.filter(exchange.mutate().request(modifiedRequest).build());
+			ServerHttpRequest modifiedRequest = exchange.getRequest().mutate()
+				.header("X-User-ID", userId)
+				.build();
+
+			return chain.filter(exchange.mutate().request(modifiedRequest).build());
+		} else {
+			log.info("Authorization 헤더에서 리프레시 토큰을 감지했습니다.");
+			return chain.filter(exchange);
+		}
 	}
 }
