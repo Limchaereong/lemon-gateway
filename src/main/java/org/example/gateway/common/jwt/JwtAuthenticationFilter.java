@@ -29,7 +29,8 @@ public class JwtAuthenticationFilter implements WebFilter {
 		String path = request.getPath().toString();
 		if (path.startsWith("/user/login") || path.startsWith("/auth/refresh")
 			|| path.startsWith("/user/signup") || path.startsWith("/user/send")
-			|| path.startsWith("/user/verify") || path.startsWith("/user/check-email")) {
+			|| path.startsWith("/user/verify") || path.startsWith("/user/check-email")
+			|| path.startsWith("/user/find-email")) {
 			return chain.filter(exchange);
 		}
 
