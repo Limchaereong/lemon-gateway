@@ -1,4 +1,4 @@
-package org.basoup.gateway.config;
+package org.basoup.gateway.common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

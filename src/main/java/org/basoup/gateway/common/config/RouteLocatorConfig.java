@@ -1,4 +1,4 @@
-package org.basoup.gateway.config;
+package org.basoup.gateway.common.config;
 
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
